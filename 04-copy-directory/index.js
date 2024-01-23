@@ -1,50 +1,41 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-
 const sourceDirectory = path.join(__dirname, 'files');
 const destinationDirectory = path.join(__dirname, 'files-copy');
 
-function copyFiles(sourcePath, destinationPath) {
-  fs.mkdir(destinationPath, { recursive: true }, (err) => {
-    if (err)
-      return console.log(`Ошибка при создании директории: ${err.message}`);
+async function createDirectoryIfNotExists(directory) {
+  try {
+    await fs.mkdir(directory, { recursive: true });
+  } catch (error) {
+    console.error(`Ошибка при создании директории: ${error.message}`);
+  }
+}
 
-    fs.readdir(destinationPath, (err, files) => {
-      if (err)
-        return console.log(
-          `Ошибка при чтении целевой директории: ${err.message}`,
-        );
+async function clearDirectory(directory) {
+  const files = await fs.readdir(directory);
+  for (const fileName of files) {
+    const filePath = path.join(directory, fileName);
+    await fs.unlink(filePath);
+  }
+}
 
-      files.forEach((fileName) => {
-        const filePath = path.join(destinationPath, fileName);
-        fs.unlink(
-          filePath,
-          (err) =>
-            err && console.log(`Ошибка при удалении файла: ${err.message}`),
-        );
-      });
-    });
+async function copyFiles(sourcePath, destinationPath) {
+  try {
+    await createDirectoryIfNotExists(destinationPath);
+    await clearDirectory(destinationPath);
 
-    fs.readdir(sourcePath, (err, files) => {
-      if (err)
-        return console.log(
-          `Ошибка при чтении исходной директории: ${err.message}`,
-        );
+    const sourceFiles = await fs.readdir(sourcePath);
+    for (const fileName of sourceFiles) {
+      const sourceFilePath = path.join(sourcePath, fileName);
+      const destFilePath = path.join(destinationPath, fileName);
 
-      files.forEach((fileName) => {
-        const sourceFilePath = path.join(sourcePath, fileName);
-        const destFilePath = path.join(destinationPath, fileName);
+      await fs.copyFile(sourceFilePath, destFilePath);
+    }
 
-        fs.copyFile(
-          sourceFilePath,
-          destFilePath,
-          fs.constants.COPYFILE_FICLONE,
-          (err) =>
-            err && console.log(`Ошибка при копировании файла: ${err.message}`),
-        );
-      });
-    });
-  });
+    console.log('Поздравляю! Директория успешно скопирована и обновлена');
+  } catch (error) {
+    console.log(`Ошибка при копировании директории: ${error.message}`);
+  }
 }
 
 copyFiles(sourceDirectory, destinationDirectory);
