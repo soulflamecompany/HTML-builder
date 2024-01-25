@@ -23,7 +23,9 @@ async function displayFileInformation() {
 
 function showLog(fileName, fileExtension, fileSize) {
   console.log(
-    `${fileName}---${fileExtension}---${(fileSize / 1024).toFixed(3)}kb`,
+    `${fileName
+      .replace(fileExtension, '')
+      .slice(0, -1)}---${fileExtension}---${(fileSize / 1024).toFixed(2)}kb`,
   );
 }
 
