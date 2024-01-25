@@ -14,11 +14,14 @@ async function mergeStyles() {
       (file) => path.extname(file) === '.css',
     );
 
+    await fs.writeFile(bundleFile, '');
+
     for (const cssFile of filteredCssFiles) {
       const filePath = path.join(stylesDir, cssFile);
       const fileContent = await fs.readFile(filePath, 'utf8');
       await fs.appendFile(bundleFile, fileContent, 'utf8');
     }
+
     console.log('Поздравляю! Стили успешно объединены.');
   } catch (error) {
     console.log(`Ошибка при объединении стилей: ${error.message}`);
