@@ -11,10 +11,10 @@ async function displayFileInformation() {
 
     for (const file of filteredFiles) {
       const filePath = path.join(folderPath, file.name);
-      const fileExtension = path.extname(file.name).slice(1);
-      const fileStats = await fs.stat(filePath);
+      const fileExtension = path.extname(file.name).slice(1) || ''; // Изменено условие для файлов без расширения
+      const fileSize = (await fs.stat(filePath)).size;
 
-      showLog(file.name, fileExtension, fileStats.size);
+      showLog(file.name, fileExtension, fileSize);
     }
   } catch (error) {
     console.log('Произошла ошибка:', error.message);
@@ -22,11 +22,15 @@ async function displayFileInformation() {
 }
 
 function showLog(fileName, fileExtension, fileSize) {
-  console.log(
-    `${fileName
-      .replace(fileExtension, '')
-      .slice(0, -1)}---${fileExtension}---${(fileSize / 1024).toFixed(2)}kb`,
-  );
+  if (fileExtension) {
+    console.log(
+      `${fileName.replace('.' + fileExtension, '')}---${fileExtension}---${(
+        fileSize / 1024
+      ).toFixed(2)}kb`,
+    );
+  } else {
+    console.log(`${fileName}---${(fileSize / 1024).toFixed(2)}kb`);
+  }
 }
 
 displayFileInformation();
