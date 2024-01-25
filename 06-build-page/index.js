@@ -53,15 +53,15 @@ async function processComponents(
 ) {
   let modifiedContent = templateContent;
 
-  componentTags.forEach((tag) => {
+  for (const tag of componentTags) {
     const componentName = tag.match(/{{\s*([^}\s]+)\s*}}/)[1];
     const componentFilePath = path.join(
       componentsDirectory,
       `${componentName}.html`,
     );
-    const componentContent = readFile(componentFilePath);
+    const componentContent = await readFile(componentFilePath);
     modifiedContent = modifiedContent.replace(tag, componentContent);
-  });
+  }
 
   return modifiedContent;
 }
@@ -85,7 +85,7 @@ async function getFilesWithExtension(directory, extension) {
 async function copyAssets(sourceDirectory, destinationDirectory) {
   const entries = await fs.readdir(sourceDirectory, { withFileTypes: true });
 
-  entries.forEach(async (entry) => {
+  for (const entry of entries) {
     const sourcePath = path.join(sourceDirectory, entry.name);
     const destinationPath = path.join(destinationDirectory, entry.name);
 
@@ -95,7 +95,7 @@ async function copyAssets(sourceDirectory, destinationDirectory) {
     } else {
       await fs.copyFile(sourcePath, destinationPath);
     }
-  });
+  }
 
   console.log('assets успешно скопирован.');
 }
